@@ -1,3 +1,7 @@
+export const SALT = 10;
+
+export const JWT_EXPIRES_IN = '7d';
+
 export const MESSAGE_ERROR = {
   INTERNAL_SERVER_ERROR: 'Внутренняя ошибка сервера',
 

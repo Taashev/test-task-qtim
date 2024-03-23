@@ -35,7 +35,7 @@ export class UserEntity {
   @IsString()
   @MinLength(2)
   @MaxLength(200)
-  name: string;
+  username: string;
 
   @Column({ type: 'char', length: 60, nullable: false })
   @IsNotEmpty()

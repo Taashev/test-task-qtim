@@ -1,4 +1,7 @@
+import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
+
+import { SALT } from 'src/utils/constants';
 
 import { UsersRepository } from './users.repository';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -10,12 +13,24 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const createUser = await this.usersRepository.create(createUserDto);
 
+    const hashPassword = await bcrypt.hash(createUser.password, SALT);
+
+    createUser.password = hashPassword;
+
     const user = await this.usersRepository.save(createUser);
 
     return user;
   }
 
   async findAll() {
-    return await this.usersRepository.findAll();
+    const users = await this.usersRepository.findAll();
+
+    return users;
+  }
+
+  async findOneByUsername(username: string) {
+    const user = await this.usersRepository.findOneByUsername(username);
+
+    return user;
   }
 }

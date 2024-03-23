@@ -15,6 +15,7 @@ const validationSchema = Joi.object({
   PG_CACHE: Joi.boolean().default(false),
 
   JWT_SECRET: Joi.string().required(),
+  JWT_EXPIRES_IN: Joi.string().required(),
 });
 
 const envFilePath = ['.env'];

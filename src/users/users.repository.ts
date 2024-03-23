@@ -4,10 +4,10 @@ import { Repository, TypeORMError } from 'typeorm';
 import { validate } from 'class-validator';
 
 import { TypeOrmException } from 'src/exceptions/typeorm.exception';
+import { MESSAGE_ERROR } from 'src/utils/constants';
 
 import { UserEntity } from './entity/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { MESSAGE_ERROR } from 'src/utils/constants';
 
 @Injectable()
 export class UsersRepository {
@@ -24,7 +24,9 @@ export class UsersRepository {
         throw new BadRequestException(MESSAGE_ERROR.BAD_REQUEST);
       }
 
-      return this.usersRepository.create(createUserDto);
+      const createUser = this.usersRepository.create(createUserDto);
+
+      return createUser;
     } catch (error) {
       if (error instanceof TypeORMError) {
         throw new TypeOrmException(error);
@@ -34,9 +36,11 @@ export class UsersRepository {
     }
   }
 
-  async save(user: UserEntity): Promise<UserEntity> {
+  async save(userEntity: UserEntity): Promise<UserEntity> {
     try {
-      return await this.usersRepository.save(user);
+      const user = await this.usersRepository.save(userEntity);
+
+      return user;
     } catch (error) {
       if (error instanceof TypeORMError) {
         throw new TypeOrmException(error);
@@ -48,7 +52,23 @@ export class UsersRepository {
 
   async findAll() {
     try {
-      return await this.usersRepository.find();
+      const users = await this.usersRepository.find();
+
+      return users;
+    } catch (error) {
+      if (error instanceof TypeORMError) {
+        throw new TypeOrmException(error);
+      }
+
+      throw error;
+    }
+  }
+
+  async findOneByUsername(username: string) {
+    try {
+      const user = await this.usersRepository.findOne({ where: { username } });
+
+      return user;
     } catch (error) {
       if (error instanceof TypeORMError) {
         throw new TypeOrmException(error);
