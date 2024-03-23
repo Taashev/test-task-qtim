@@ -1,20 +1,25 @@
-import { ConfigService } from '@nestjs/config';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { join } from 'path';
+import * as dotenv from 'dotenv';
+import { DataSource, DataSourceOptions } from 'typeorm';
 
-export const postgresConfig: (
-  ...args: any[]
-) => TypeOrmModuleOptions | Promise<TypeOrmModuleOptions> = (
-  configService: ConfigService,
-) => {
-  return {
-    type: 'postgres',
-    host: configService.get('PG_HOST'),
-    port: configService.get('PG_PORT'),
-    database: configService.get('PG_NAME'),
-    username: configService.get('PG_USER'),
-    password: configService.get('PG_PASSWORD'),
-    synchronize: configService.get('PG_SYNCHRONIZE') === true,
-    entities: [join(__dirname, '**', '*.entity{.ts, .js}')],
-  };
+import { TypeOrmConfig } from 'src/database/types/typeorm';
+
+dotenv.config();
+
+// Конфигурация для Postgres
+export const postgresConfig: TypeOrmConfig = {
+  type: 'postgres',
+  host: process.env['PG_HOST'],
+  port: Number(process.env['PG_PORT']),
+  database: process.env['PG_NAME'],
+  username: process.env['PG_USER'],
+  password: process.env['PG_PASSWORD'],
+  synchronize: process.env['PG_SYNCHRONIZE'] === 'true',
+  entities: [join(__dirname, '..', '**', '*.entity{.ts, .js}')],
+  migrations: [join(__dirname, '..', 'database', 'migrations', '*{.ts, .js}')],
 };
+
+// инстанс с конфигом для работы с миграциями через TypeOrm CLI
+export const PostgresDataSource = new DataSource(
+  postgresConfig as DataSourceOptions,
+);

@@ -1,5 +1,5 @@
-import { ConfigModuleOptions } from '@nestjs/config';
 import * as Joi from 'joi';
+import { ConfigModuleOptions } from '@nestjs/config';
 
 const validationSchema = Joi.object({
   HOST: Joi.string().default('localhost'),

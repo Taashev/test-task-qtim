@@ -2,7 +2,7 @@
   "name": "test-task-qtim",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "taashev",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -17,7 +17,13 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "ts-node --files -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource ./src/configs/typeorm.config.ts",
+    "typeorm:create": "ts-node --files -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
+    "migrate:generate": "npm run typeorm migration:generate -n",
+    "migrate:create": "npm run typeorm:create migration:create -n",
+    "migrate:up": "npm run typeorm migration:run",
+    "migrate:down": "npm run typeorm migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
