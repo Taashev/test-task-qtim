@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
+import { TypeOrmExceptionFilter } from './exception-filters/typeorm.exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +15,8 @@ async function bootstrap() {
   const PORT = configService.get('PORT');
 
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+
+  app.useGlobalFilters(new TypeOrmExceptionFilter());
 
   await app.listen(PORT, HOST, () => {
     if (NODE_ENV !== 'production') {

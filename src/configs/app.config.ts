@@ -12,6 +12,7 @@ const validationSchema = Joi.object({
   PG_USER: Joi.string().required(),
   PG_PASSWORD: Joi.string().required(),
   PG_SYNCHRONIZE: Joi.boolean().default(false),
+  PG_CACHE: Joi.boolean().default(false),
 
   JWT_SECRET: Joi.string().required(),
 });
