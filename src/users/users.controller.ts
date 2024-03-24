@@ -2,6 +2,7 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Get,
+  NotFoundException,
   Param,
   Req,
   UseGuards,
@@ -12,6 +13,7 @@ import { plainToInstance } from 'class-transformer';
 
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { PostResponseDto } from 'src/posts/dto/post-respoonse.dto';
+import { MESSAGE_ERROR } from 'src/utils/constants';
 
 import { UsersService } from './users.service';
 import { UserProfileResponse } from './dto/user-profile-response.dto';
@@ -61,6 +63,10 @@ export class UsersController {
     const user = await this.usersService.findOneByUsername(username, {
       posts: true,
     });
+
+    if (!user) {
+      throw new NotFoundException(MESSAGE_ERROR.NOT_FOUND_USER);
+    }
 
     const posts = user.posts;
 
