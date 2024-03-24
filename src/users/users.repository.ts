@@ -6,8 +6,9 @@ import { validate } from 'class-validator';
 import { TypeOrmException } from 'src/exceptions/typeorm.exception';
 import { MESSAGE_ERROR } from 'src/utils/constants';
 
-import { UserEntity } from './entity/user.entity';
+import { UserEntity } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UsersRepository {
@@ -64,9 +65,23 @@ export class UsersRepository {
     }
   }
 
-  async findOneByUsername(username: string) {
+  async findOneByUsername(username: UserDto['username']) {
     try {
       const user = await this.usersRepository.findOne({ where: { username } });
+
+      return user;
+    } catch (error) {
+      if (error instanceof TypeORMError) {
+        throw new TypeOrmException(error);
+      }
+
+      throw error;
+    }
+  }
+
+  async findOneById(id: UserDto['id']) {
+    try {
+      const user = await this.usersRepository.findOne({ where: { id } });
 
       return user;
     } catch (error) {

@@ -5,16 +5,19 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
+import { Request } from 'express';
 
+import { LocalGuard } from 'src/auth/guards/local.guard';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserProfileResponse } from 'src/users/dto/user-profile-response.dto';
 
 import { AuthService } from './auth.service';
-import { SignInDto } from './dto/signin.dto';
 
 @Controller()
 @UseInterceptors(ClassSerializerInterceptor)
@@ -34,9 +37,12 @@ export class AuthController {
   }
 
   @Post('signin')
+  @UseGuards(LocalGuard)
   @HttpCode(HttpStatus.OK)
-  async signIn(@Body() signInDto: SignInDto) {
-    const jwt = await this.authService.auth(signInDto);
+  signIn(@Req() req: Request) {
+    const user = req.user;
+
+    const jwt = this.authService.auth(user.id);
 
     return jwt;
   }

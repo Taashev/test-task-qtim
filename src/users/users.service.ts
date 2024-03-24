@@ -5,6 +5,7 @@ import { SALT } from 'src/utils/constants';
 
 import { UsersRepository } from './users.repository';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UsersService {
@@ -28,8 +29,14 @@ export class UsersService {
     return users;
   }
 
-  async findOneByUsername(username: string) {
+  async findOneByUsername(username: UserDto['username']) {
     const user = await this.usersRepository.findOneByUsername(username);
+
+    return user;
+  }
+
+  async findOneById(id: UserDto['id']) {
+    const user = await this.usersRepository.findOneById(id);
 
     return user;
   }
