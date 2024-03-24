@@ -65,9 +65,15 @@ export class UsersRepository {
     }
   }
 
-  async findOneByUsername(username: UserDto['username']) {
+  async findOneByUsername(
+    username: UserDto['username'],
+    options = { posts: false },
+  ) {
     try {
-      const user = await this.usersRepository.findOne({ where: { username } });
+      const user = await this.usersRepository.findOne({
+        where: { username },
+        relations: options,
+      });
 
       return user;
     } catch (error) {

@@ -48,12 +48,25 @@ export class UsersController {
 
   @Get(':username')
   @UseGuards(JwtGuard)
-  findOneByUsername(@Param('username') username: UserDto['username']) {
-    const user = this.usersService.findOneByUsername(username);
+  async findOneByUsername(@Param('username') username: UserDto['username']) {
+    const user = await this.usersService.findOneByUsername(username);
 
     const userProfileResponseDto = plainToInstance(UserProfileResponse, user);
 
     return userProfileResponseDto;
+  }
+
+  @Get(':username/posts')
+  async getUsernamePosts(@Param('username') username: UserDto['username']) {
+    const user = await this.usersService.findOneByUsername(username, {
+      posts: true,
+    });
+
+    const posts = user.posts;
+
+    const postsResponseDto = plainToInstance(PostResponseDto, posts);
+
+    return postsResponseDto;
   }
 
   @Get()

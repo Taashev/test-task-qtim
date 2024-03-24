@@ -29,8 +29,14 @@ export class UsersService {
     return users;
   }
 
-  async findOneByUsername(username: UserDto['username']) {
-    const user = await this.usersRepository.findOneByUsername(username);
+  async findOneByUsername(
+    username: UserDto['username'],
+    options = { posts: false },
+  ) {
+    const user = await this.usersRepository.findOneByUsername(
+      username,
+      options,
+    );
 
     return user;
   }
