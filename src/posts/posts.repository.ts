@@ -98,4 +98,18 @@ export class PostsRepository {
       throw error;
     }
   }
+
+  async delete(id: PostDto['id']) {
+    try {
+      const deleteResult = await this.postsRepository.delete(id);
+
+      return deleteResult;
+    } catch (error) {
+      if (error instanceof TypeORMError) {
+        throw new TypeOrmException(error);
+      }
+
+      throw error;
+    }
+  }
 }

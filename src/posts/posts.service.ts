@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { UserEntity } from 'src/users/entities/user.entity';
 
@@ -6,6 +6,7 @@ import { PostsRepository } from './posts.repository';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { MESSAGE_ERROR } from 'src/utils/constants';
 
 @Injectable()
 export class PostsService {
@@ -37,5 +38,13 @@ export class PostsService {
     const post = await this.postsRepository.update(id, updatePostDto);
 
     return post;
+  }
+
+  async delete(id: PostDto['id']) {
+    const deleteResult = await this.postsRepository.delete(id);
+
+    if (!deleteResult.affected) {
+      throw new BadRequestException(MESSAGE_ERROR.BAD_REQUEST_DELETE_POST);
+    }
   }
 }

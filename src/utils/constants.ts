@@ -7,13 +7,13 @@ export const MESSAGE_ERROR = {
 
   BAD_REQUEST: 'Некорректно переданные данные',
 
+  BAD_REQUEST_DELETE_POST: 'Не удалось удалить пост',
+
   AUTH_USER: 'Неверный логин или пароль',
 
   FORBIDDEN: 'У вас не хватает прав. Автороризуйтесь',
 
-  FORBIDDEN_DELETE_POST: 'Нельзя удалять чужые посты',
-
-  FORBIDDEN_UPDATE_POST: 'Нельзя обновлять чужые посты',
+  FORBIDDEN_POST: 'Вы не являетесь владельцем этого поста',
 
   NOT_FOUND_USER: 'Пользователь не найден',
 

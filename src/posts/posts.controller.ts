@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -84,5 +85,14 @@ export class PostsController {
     );
 
     return postResponseDto;
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtGuard)
+  @UseInterceptors(IsOwnerPostInterceptor)
+  async delete(@Param('id') id: PostDto['id']) {
+    await this.postsService.delete(id);
+
+    return {};
   }
 }

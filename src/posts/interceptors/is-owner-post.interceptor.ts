@@ -36,7 +36,7 @@ export class IsOwnerPostInterceptor implements NestInterceptor {
     const postOwnerId = post.owner.id;
 
     if (postOwnerId !== userRequest.id) {
-      throw new ForbiddenException(MESSAGE_ERROR.FORBIDDEN_UPDATE_POST);
+      throw new ForbiddenException(MESSAGE_ERROR.FORBIDDEN_POST);
     }
 
     return next.handle();
