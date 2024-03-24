@@ -9,6 +9,7 @@ import { MESSAGE_ERROR } from 'src/utils/constants';
 import { PostEntity } from './entities/post.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostDto } from './dto/post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostsRepository {
@@ -73,6 +74,20 @@ export class PostsRepository {
         where: { id },
         relations: { owner: options.owner },
       });
+
+      return post;
+    } catch (error) {
+      if (error instanceof TypeORMError) {
+        throw new TypeOrmException(error);
+      }
+
+      throw error;
+    }
+  }
+
+  async update(id: PostDto['id'], updatePostDto: UpdatePostDto) {
+    try {
+      const post = await this.postsRepository.update(id, updatePostDto);
 
       return post;
     } catch (error) {

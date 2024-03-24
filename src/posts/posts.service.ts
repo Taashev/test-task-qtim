@@ -5,6 +5,7 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { PostsRepository } from './posts.repository';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostDto } from './dto/post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostsService {
@@ -28,6 +29,12 @@ export class PostsService {
 
   async findOneById(id: PostDto['id'], options = { owner: false }) {
     const post = await this.postsRepository.findOneById(id, options);
+
+    return post;
+  }
+
+  async update(id: PostDto['id'], updatePostDto: UpdatePostDto) {
+    const post = await this.postsRepository.update(id, updatePostDto);
 
     return post;
   }

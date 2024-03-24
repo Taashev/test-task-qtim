@@ -11,7 +11,13 @@ export const MESSAGE_ERROR = {
 
   FORBIDDEN: 'У вас не хватает прав. Автороризуйтесь',
 
+  FORBIDDEN_DELETE_POST: 'Нельзя удалять чужые посты',
+
+  FORBIDDEN_UPDATE_POST: 'Нельзя обновлять чужые посты',
+
   NOT_FOUND_USER: 'Пользователь не найден',
+
+  NOT_FOUND_POST: 'Пост не найден',
 
   ALREADY_EXISTS_USER: 'Пользователь уже существует',
 };
