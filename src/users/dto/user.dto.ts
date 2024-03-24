@@ -1,10 +1,18 @@
+import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
   MaxLength,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+
+import { userConfig } from 'src/configs/user.config';
+import { PostDto } from 'src/posts/dto/post.dto';
+
+const { username, password } = userConfig;
 
 export class UserDto {
   @IsNotEmpty()
@@ -14,13 +22,18 @@ export class UserDto {
 
   @IsNotEmpty()
   @IsString()
-  @MinLength(2)
-  @MaxLength(200)
+  @MinLength(username.minLength)
+  @MaxLength(username.maxLength)
   username: string;
 
   @IsNotEmpty()
   @IsString()
-  @MinLength(3)
-  @MaxLength(60)
+  @MinLength(password.minLength)
+  @MaxLength(password.maxLength)
   password: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => PostDto)
+  posts: PostDto[];
 }

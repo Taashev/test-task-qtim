@@ -1,46 +1,65 @@
+import { Type } from 'class-transformer';
 import {
   IsDate,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
   MaxLength,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
-
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
+import { userConfig } from 'src/configs/user.config';
+import { PostEntity } from 'src/posts/entities/post.entity';
+
+const { username, password } = userConfig;
+
 @Entity({ name: 'users' })
 export class UserEntity {
-  @PrimaryGeneratedColumn('uuid')
   @IsString()
   @IsUUID()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @CreateDateColumn()
   @IsDate()
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn()
   @IsDate()
+  @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({ type: 'varchar', length: 200, nullable: false, unique: true })
   @IsNotEmpty()
   @IsString()
-  @MinLength(2)
-  @MaxLength(200)
+  @MinLength(username.minLength)
+  @MaxLength(username.maxLength)
+  @Column({
+    type: 'varchar',
+    length: username.maxLength,
+    nullable: false,
+    unique: true,
+  })
   username: string;
 
-  @Column({ type: 'char', length: 60, nullable: false })
   @IsNotEmpty()
   @IsString()
-  @MinLength(3)
-  @MaxLength(60)
+  @MinLength(password.minLength)
+  @MaxLength(password.maxLength)
+  @Column({ type: 'char', length: password.maxLength, nullable: false })
   password: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => PostEntity)
+  @OneToMany(() => PostEntity, (post) => post.owner, { cascade: true })
+  posts: PostEntity[];
 }
