@@ -10,6 +10,8 @@ import { PostEntity } from './entities/post.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { Options, Relations } from './types/repository';
+import { optionsDefault, defaultOptionRelations } from './utils/constants';
 
 @Injectable()
 export class PostsRepository {
@@ -52,10 +54,14 @@ export class PostsRepository {
     }
   }
 
-  async findAll(options = { owner: false }) {
+  async findAll(options?: Options) {
+    const { owner, skip, take } = { ...optionsDefault, ...options };
+
     try {
       const posts = this.postsRepository.find({
-        relations: { owner: options.owner },
+        relations: { owner },
+        skip,
+        take,
       });
 
       return posts;
@@ -68,11 +74,14 @@ export class PostsRepository {
     }
   }
 
-  async findOneById(id: PostDto['id'], options = { owner: false }) {
+  async findOneById(
+    postId: PostDto['id'],
+    relations: Relations = defaultOptionRelations,
+  ) {
     try {
       const post = await this.postsRepository.findOne({
-        where: { id },
-        relations: { owner: options.owner },
+        where: { id: postId },
+        relations,
       });
 
       return post;
@@ -85,9 +94,9 @@ export class PostsRepository {
     }
   }
 
-  async update(id: PostDto['id'], updatePostDto: UpdatePostDto) {
+  async update(postId: PostDto['id'], updatePostDto: UpdatePostDto) {
     try {
-      const post = await this.postsRepository.update(id, updatePostDto);
+      const post = await this.postsRepository.update(postId, updatePostDto);
 
       return post;
     } catch (error) {
@@ -99,9 +108,9 @@ export class PostsRepository {
     }
   }
 
-  async delete(id: PostDto['id']) {
+  async delete(postId: PostDto['id']) {
     try {
-      const deleteResult = await this.postsRepository.delete(id);
+      const deleteResult = await this.postsRepository.delete(postId);
 
       return deleteResult;
     } catch (error) {

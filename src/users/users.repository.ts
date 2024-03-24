@@ -9,6 +9,8 @@ import { MESSAGE_ERROR } from 'src/utils/constants';
 import { UserEntity } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
+import { Relations } from './types/repository';
+import { defaultOptionRelations } from './utils/constants';
 
 @Injectable()
 export class UsersRepository {
@@ -67,12 +69,12 @@ export class UsersRepository {
 
   async findOneByUsername(
     username: UserDto['username'],
-    options = { posts: false },
+    relations: Relations = defaultOptionRelations,
   ) {
     try {
       const user = await this.usersRepository.findOne({
         where: { username },
-        relations: options,
+        relations,
       });
 
       return user;
@@ -85,11 +87,14 @@ export class UsersRepository {
     }
   }
 
-  async findOneById(id: UserDto['id'], options = { posts: false }) {
+  async findOneById(
+    id: UserDto['id'],
+    relations: Relations = defaultOptionRelations,
+  ) {
     try {
       const user = await this.usersRepository.findOne({
         where: { id },
-        relations: options,
+        relations,
       });
 
       return user;

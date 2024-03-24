@@ -11,7 +11,7 @@ import {
 import { Request } from 'express';
 import { plainToInstance } from 'class-transformer';
 
-import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { JwtGuard } from 'src/guards/jwt.guard';
 import { PostResponseDto } from 'src/posts/dto/post-respoonse.dto';
 import { MESSAGE_ERROR } from 'src/utils/constants';
 
@@ -41,6 +41,10 @@ export class UsersController {
       posts: true,
     });
 
+    if (!user) {
+      throw new NotFoundException(MESSAGE_ERROR.NOT_FOUND_USER);
+    }
+
     const posts = user.posts;
 
     const postsResponseDto = plainToInstance(PostResponseDto, posts);
@@ -52,6 +56,10 @@ export class UsersController {
   @UseGuards(JwtGuard)
   async findOneByUsername(@Param('username') username: UserDto['username']) {
     const user = await this.usersService.findOneByUsername(username);
+
+    if (!user) {
+      throw new NotFoundException(MESSAGE_ERROR.NOT_FOUND_USER);
+    }
 
     const userProfileResponseDto = plainToInstance(UserProfileResponse, user);
 

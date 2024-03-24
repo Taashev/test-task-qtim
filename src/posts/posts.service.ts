@@ -5,12 +5,13 @@ import {
 } from '@nestjs/common';
 
 import { UserEntity } from 'src/users/entities/user.entity';
+import { MESSAGE_ERROR } from 'src/utils/constants';
 
 import { PostsRepository } from './posts.repository';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { MESSAGE_ERROR } from 'src/utils/constants';
+import { Options, Relations } from './types/repository';
 
 @Injectable()
 export class PostsService {
@@ -26,14 +27,14 @@ export class PostsService {
     return post;
   }
 
-  async findAll(options = { owner: false }) {
+  async findAll(options?: Options) {
     const posts = await this.postsRepository.findAll(options);
 
     return posts;
   }
 
-  async findOneById(id: PostDto['id'], options = { owner: false }) {
-    const post = await this.postsRepository.findOneById(id, options);
+  async findOneById(postId: PostDto['id'], relations?: Relations) {
+    const post = await this.postsRepository.findOneById(postId, relations);
 
     if (!post) {
       throw new NotFoundException(MESSAGE_ERROR.NOT_FOUND_POST);
@@ -42,14 +43,14 @@ export class PostsService {
     return post;
   }
 
-  async update(id: PostDto['id'], updatePostDto: UpdatePostDto) {
-    const post = await this.postsRepository.update(id, updatePostDto);
+  async update(postId: PostDto['id'], updatePostDto: UpdatePostDto) {
+    const post = await this.postsRepository.update(postId, updatePostDto);
 
     return post;
   }
 
-  async delete(id: PostDto['id']) {
-    const deleteResult = await this.postsRepository.delete(id);
+  async delete(postId: PostDto['id']) {
+    const deleteResult = await this.postsRepository.delete(postId);
 
     if (!deleteResult.affected) {
       throw new BadRequestException(MESSAGE_ERROR.BAD_REQUEST_DELETE_POST);

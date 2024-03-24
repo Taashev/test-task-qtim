@@ -12,7 +12,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { Request } from 'express';
 
-import { LocalGuard } from 'src/auth/guards/local.guard';
+import { LocalGuard } from 'src/guards/local.guard';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserProfileResponse } from 'src/users/dto/user-profile-response.dto';

@@ -6,30 +6,32 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { plainToInstance } from 'class-transformer';
 
-import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { JwtGuard } from 'src/guards/jwt.guard';
 import { UserProfileResponse } from 'src/users/dto/user-profile-response.dto';
 
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { plainToInstance } from 'class-transformer';
+import { IsOwnerPostInterceptor } from './interceptors/is-owner-post.interceptor';
 import { PostResponseDto } from './dto/post-respoonse.dto';
 import { PostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { IsOwnerPostInterceptor } from './interceptors/is-owner-post.interceptor';
+import { QueryPaginationDto } from './dto/query-pagination.dto';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Get(':id')
-  async findOneById(@Param('id') id: PostDto['id']) {
-    const post = await this.postsService.findOneById(id, { owner: true });
+  async findOneById(@Param('id') postId: PostDto['id']) {
+    const post = await this.postsService.findOneById(postId, { owner: true });
 
     const postResponseDto = plainToInstance(PostResponseDto, post);
 
@@ -42,12 +44,12 @@ export class PostsController {
   @UseGuards(JwtGuard)
   @UseInterceptors(IsOwnerPostInterceptor)
   async update(
-    @Param('id') id: PostDto['id'],
+    @Param('id') postId: PostDto['id'],
     @Body() updatePostDto: UpdatePostDto,
   ) {
-    await this.postsService.update(id, updatePostDto);
+    await this.postsService.update(postId, updatePostDto);
 
-    const updatedPost = await this.postsService.findOneById(id, {
+    const updatedPost = await this.postsService.findOneById(postId, {
       owner: true,
     });
 
@@ -64,8 +66,8 @@ export class PostsController {
   @Delete(':id')
   @UseGuards(JwtGuard)
   @UseInterceptors(IsOwnerPostInterceptor)
-  async delete(@Param('id') id: PostDto['id']) {
-    await this.postsService.delete(id);
+  async delete(@Param('id') postId: PostDto['id']) {
+    await this.postsService.delete(postId);
 
     return {};
   }
@@ -81,8 +83,12 @@ export class PostsController {
   }
 
   @Get()
-  async findAll() {
-    const posts = await this.postsService.findAll({ owner: true });
+  async findAll(@Query() query: QueryPaginationDto) {
+    const posts = await this.postsService.findAll({
+      owner: true,
+      skip: query.offset,
+      take: query.limit,
+    });
 
     const postsResponseDto = plainToInstance(PostResponseDto, posts);
 
