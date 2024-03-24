@@ -27,31 +27,6 @@ import { IsOwnerPostInterceptor } from './interceptors/is-owner-post.interceptor
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
-  @Post()
-  @UseGuards(JwtGuard)
-  async create(@Req() req: Request, @Body() createPostDto: CreatePostDto) {
-    const user = req.user;
-
-    const post = await this.postsService.create(createPostDto, user);
-
-    return post;
-  }
-
-  @Get()
-  @UseGuards(JwtGuard)
-  async findAll() {
-    const posts = await this.postsService.findAll({ owner: true });
-
-    const postsResponseDto = plainToInstance(PostResponseDto, posts);
-
-    const postsResponse = postsResponseDto.map((post) => {
-      post.owner = plainToInstance(UserProfileResponse, post.owner);
-      return post;
-    });
-
-    return postsResponse;
-  }
-
   @Get(':id')
   @UseGuards(JwtGuard)
   async findOneById(@Param('id') id: PostDto['id']) {
@@ -94,5 +69,30 @@ export class PostsController {
     await this.postsService.delete(id);
 
     return {};
+  }
+
+  @Post()
+  @UseGuards(JwtGuard)
+  async create(@Req() req: Request, @Body() createPostDto: CreatePostDto) {
+    const user = req.user;
+
+    const post = await this.postsService.create(createPostDto, user);
+
+    return post;
+  }
+
+  @Get()
+  @UseGuards(JwtGuard)
+  async findAll() {
+    const posts = await this.postsService.findAll({ owner: true });
+
+    const postsResponseDto = plainToInstance(PostResponseDto, posts);
+
+    const postsResponse = postsResponseDto.map((post) => {
+      post.owner = plainToInstance(UserProfileResponse, post.owner);
+      return post;
+    });
+
+    return postsResponse;
   }
 }

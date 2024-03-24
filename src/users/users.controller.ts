@@ -3,29 +3,31 @@ import {
   Controller,
   Get,
   Param,
+  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-
-import { UsersService } from './users.service';
+import { Request } from 'express';
 import { plainToInstance } from 'class-transformer';
+
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { UsersService } from './users.service';
 import { UserProfileResponse } from './dto/user-profile-response.dto';
 import { UserDto } from './dto/user.dto';
-import { JwtGuard } from 'src/auth/guards/jwt.guard';
 
 @Controller('users')
 @UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get()
+  @Get('me')
   @UseGuards(JwtGuard)
-  async findAll() {
-    const users = await this.usersService.findAll();
+  findMe(@Req() req: Request) {
+    const user = req.user;
 
-    const usersProfileResponseDto = plainToInstance(UserProfileResponse, users);
+    const userProfileResponseDto = plainToInstance(UserProfileResponse, user);
 
-    return usersProfileResponseDto;
+    return userProfileResponseDto;
   }
 
   @Get(':id')
@@ -36,5 +38,15 @@ export class UsersController {
     const userProfileResponseDto = plainToInstance(UserProfileResponse, user);
 
     return userProfileResponseDto;
+  }
+
+  @Get()
+  @UseGuards(JwtGuard)
+  async findAll() {
+    const users = await this.usersService.findAll();
+
+    const usersProfileResponseDto = plainToInstance(UserProfileResponse, users);
+
+    return usersProfileResponseDto;
   }
 }
