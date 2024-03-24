@@ -79,9 +79,12 @@ export class UsersRepository {
     }
   }
 
-  async findOneById(id: UserDto['id']) {
+  async findOneById(id: UserDto['id'], options = { posts: false }) {
     try {
-      const user = await this.usersRepository.findOne({ where: { id } });
+      const user = await this.usersRepository.findOne({
+        where: { id },
+        relations: options,
+      });
 
       return user;
     } catch (error) {

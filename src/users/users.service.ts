@@ -35,8 +35,8 @@ export class UsersService {
     return user;
   }
 
-  async findOneById(id: UserDto['id']) {
-    const user = await this.usersRepository.findOneById(id);
+  async findOneById(id: UserDto['id'], options = { posts: false }) {
+    const user = await this.usersRepository.findOneById(id, options);
 
     return user;
   }

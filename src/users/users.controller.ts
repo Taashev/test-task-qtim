@@ -11,6 +11,8 @@ import { Request } from 'express';
 import { plainToInstance } from 'class-transformer';
 
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { PostResponseDto } from 'src/posts/dto/post-respoonse.dto';
+
 import { UsersService } from './users.service';
 import { UserProfileResponse } from './dto/user-profile-response.dto';
 import { UserDto } from './dto/user.dto';
@@ -28,6 +30,20 @@ export class UsersController {
     const userProfileResponseDto = plainToInstance(UserProfileResponse, user);
 
     return userProfileResponseDto;
+  }
+
+  @Get('posts')
+  @UseGuards(JwtGuard)
+  async getPosts(@Req() req: Request) {
+    const user = await this.usersService.findOneById(req.user.id, {
+      posts: true,
+    });
+
+    const posts = user.posts;
+
+    const postsResponseDto = plainToInstance(PostResponseDto, posts);
+
+    return postsResponseDto;
   }
 
   @Get(':id')
