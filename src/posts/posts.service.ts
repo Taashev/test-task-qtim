@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { UserEntity } from 'src/users/entities/user.entity';
 
@@ -30,6 +34,10 @@ export class PostsService {
 
   async findOneById(id: PostDto['id'], options = { owner: false }) {
     const post = await this.postsRepository.findOneById(id, options);
+
+    if (!post) {
+      throw new NotFoundException(MESSAGE_ERROR.NOT_FOUND_POST);
+    }
 
     return post;
   }

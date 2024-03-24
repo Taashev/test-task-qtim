@@ -28,7 +28,6 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Get(':id')
-  @UseGuards(JwtGuard)
   async findOneById(@Param('id') id: PostDto['id']) {
     const post = await this.postsService.findOneById(id, { owner: true });
 
@@ -82,7 +81,6 @@ export class PostsController {
   }
 
   @Get()
-  @UseGuards(JwtGuard)
   async findAll() {
     const posts = await this.postsService.findAll({ owner: true });
 
