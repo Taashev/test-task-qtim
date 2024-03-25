@@ -27,7 +27,9 @@ export class IsOwnerPostInterceptor implements NestInterceptor {
     const userRequest = req.user;
 
     const postId = req.params['id'];
-    const post = await this.postsService.findOneById(postId, { owner: true });
+    const post = await this.postsService.findOneById(postId, {
+      relations: { owner: true },
+    });
 
     if (!post) {
       throw new NotFoundException(MESSAGE_ERROR.NOT_FOUND_POST);

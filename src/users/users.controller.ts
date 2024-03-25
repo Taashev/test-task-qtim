@@ -2,7 +2,6 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Get,
-  NotFoundException,
   Param,
   Req,
   UseGuards,
@@ -13,7 +12,6 @@ import { plainToInstance } from 'class-transformer';
 
 import { JwtGuard } from 'src/guards/jwt.guard';
 import { PostResponseDto } from 'src/posts/dto/post-respoonse.dto';
-import { MESSAGE_ERROR } from 'src/utils/constants';
 
 import { UsersService } from './users.service';
 import { UserProfileResponse } from './dto/user-profile-response.dto';
@@ -23,6 +21,16 @@ import { UserDto } from './dto/user.dto';
 @UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get()
+  @UseGuards(JwtGuard)
+  async findAll() {
+    const users = await this.usersService.findAll();
+
+    const usersProfileResponseDto = plainToInstance(UserProfileResponse, users);
+
+    return usersProfileResponseDto;
+  }
 
   @Get('me')
   @UseGuards(JwtGuard)
@@ -37,13 +45,9 @@ export class UsersController {
   @Get('me/posts')
   @UseGuards(JwtGuard)
   async getPosts(@Req() req: Request) {
-    const user = await this.usersService.findOneById(req.user.id, {
-      posts: true,
+    const user = await this.usersService.findOneByIdOrFail(req.user.id, {
+      relations: { posts: true },
     });
-
-    if (!user) {
-      throw new NotFoundException(MESSAGE_ERROR.NOT_FOUND_USER);
-    }
 
     const posts = user.posts;
 
@@ -57,10 +61,6 @@ export class UsersController {
   async findOneByUsername(@Param('username') username: UserDto['username']) {
     const user = await this.usersService.findOneByUsername(username);
 
-    if (!user) {
-      throw new NotFoundException(MESSAGE_ERROR.NOT_FOUND_USER);
-    }
-
     const userProfileResponseDto = plainToInstance(UserProfileResponse, user);
 
     return userProfileResponseDto;
@@ -69,27 +69,13 @@ export class UsersController {
   @Get(':username/posts')
   async getUsernamePosts(@Param('username') username: UserDto['username']) {
     const user = await this.usersService.findOneByUsername(username, {
-      posts: true,
+      relations: { posts: true },
     });
-
-    if (!user) {
-      throw new NotFoundException(MESSAGE_ERROR.NOT_FOUND_USER);
-    }
 
     const posts = user.posts;
 
     const postsResponseDto = plainToInstance(PostResponseDto, posts);
 
     return postsResponseDto;
-  }
-
-  @Get()
-  @UseGuards(JwtGuard)
-  async findAll() {
-    const users = await this.usersService.findAll();
-
-    const usersProfileResponseDto = plainToInstance(UserProfileResponse, users);
-
-    return usersProfileResponseDto;
   }
 }

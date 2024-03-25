@@ -3,15 +3,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { FindManyOptions, FindOneOptions } from 'typeorm';
 
 import { UserEntity } from 'src/users/entities/user.entity';
 import { MESSAGE_ERROR } from 'src/utils/constants';
 
+import { PostEntity } from './entities/post.entity';
 import { PostsRepository } from './posts.repository';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { Options, Relations } from './types/repository';
 
 @Injectable()
 export class PostsService {
@@ -27,14 +28,17 @@ export class PostsService {
     return post;
   }
 
-  async findAll(options?: Options) {
+  async findAll(options?: FindManyOptions<PostEntity>) {
     const posts = await this.postsRepository.findAll(options);
 
     return posts;
   }
 
-  async findOneById(postId: PostDto['id'], relations?: Relations) {
-    const post = await this.postsRepository.findOneById(postId, relations);
+  async findOneById(
+    postId: PostDto['id'],
+    options?: FindOneOptions<PostEntity>,
+  ) {
+    const post = await this.postsRepository.findOneById(postId, options);
 
     if (!post) {
       throw new NotFoundException(MESSAGE_ERROR.NOT_FOUND_POST);

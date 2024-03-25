@@ -6,7 +6,6 @@ import {
   Param,
   Patch,
   Post,
-  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -18,26 +17,53 @@ import { JwtGuard } from 'src/guards/jwt.guard';
 import { UserProfileResponse } from 'src/users/dto/user-profile-response.dto';
 
 import { PostsService } from './posts.service';
-import { CreatePostDto } from './dto/create-post.dto';
 import { IsOwnerPostInterceptor } from './interceptors/is-owner-post.interceptor';
-import { PostResponseDto } from './dto/post-respoonse.dto';
 import { PostDto } from './dto/post.dto';
+import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { QueryPaginationDto } from './dto/query-pagination.dto';
+import { PostResponseDto } from './dto/post-respoonse.dto';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
+  @Get()
+  async findAll() {
+    const posts = await this.postsService.findAll({
+      relations: { owner: true },
+    });
+
+    const postsResponseDto = plainToInstance(PostResponseDto, posts);
+
+    const postsResponse = postsResponseDto.map((post) => {
+      post.owner = plainToInstance(UserProfileResponse, post.owner);
+      return post;
+    });
+
+    return postsResponse;
+  }
+
   @Get(':id')
   async findOneById(@Param('id') postId: PostDto['id']) {
-    const post = await this.postsService.findOneById(postId, { owner: true });
+    const post = await this.postsService.findOneById(postId, {
+      relations: { owner: true },
+    });
 
     const postResponseDto = plainToInstance(PostResponseDto, post);
 
     postResponseDto.owner = plainToInstance(UserProfileResponse, post.owner);
 
     return postResponseDto;
+  }
+
+  @Post()
+  @UseGuards(JwtGuard)
+  async create(@Req() req: Request, @Body() createPostDto: CreatePostDto) {
+    const user = req.user;
+
+    const post = await this.postsService.create(createPostDto, user);
+
+    return post;
   }
 
   @Patch(':id')
@@ -49,9 +75,7 @@ export class PostsController {
   ) {
     await this.postsService.update(postId, updatePostDto);
 
-    const updatedPost = await this.postsService.findOneById(postId, {
-      owner: true,
-    });
+    const updatedPost = await this.postsService.findOneById(postId);
 
     const postResponseDto = plainToInstance(PostResponseDto, updatedPost);
 
@@ -70,33 +94,5 @@ export class PostsController {
     await this.postsService.delete(postId);
 
     return {};
-  }
-
-  @Post()
-  @UseGuards(JwtGuard)
-  async create(@Req() req: Request, @Body() createPostDto: CreatePostDto) {
-    const user = req.user;
-
-    const post = await this.postsService.create(createPostDto, user);
-
-    return post;
-  }
-
-  @Get()
-  async findAll(@Query() query: QueryPaginationDto) {
-    const posts = await this.postsService.findAll({
-      owner: true,
-      skip: query.offset,
-      take: query.limit,
-    });
-
-    const postsResponseDto = plainToInstance(PostResponseDto, posts);
-
-    const postsResponse = postsResponseDto.map((post) => {
-      post.owner = plainToInstance(UserProfileResponse, post.owner);
-      return post;
-    });
-
-    return postsResponse;
   }
 }

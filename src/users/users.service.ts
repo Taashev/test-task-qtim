@@ -1,12 +1,13 @@
 import * as bcrypt from 'bcrypt';
-import { Injectable } from '@nestjs/common';
+import { FindOneOptions } from 'typeorm';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
-import { SALT } from 'src/utils/constants';
+import { MESSAGE_ERROR, SALT } from 'src/utils/constants';
 
+import { UserEntity } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
-import { Relations } from './types/repository';
 
 @Injectable()
 export class UsersService {
@@ -32,18 +33,38 @@ export class UsersService {
 
   async findOneByUsername(
     username: UserDto['username'],
-    relations?: Relations,
+    options?: FindOneOptions<UserEntity>,
   ) {
     const user = await this.usersRepository.findOneByUsername(
       username,
-      relations,
+      options,
     );
+
+    if (!user) {
+      throw new NotFoundException(MESSAGE_ERROR.NOT_FOUND_USER);
+    }
 
     return user;
   }
 
-  async findOneById(id: UserDto['id'], relations?: Relations) {
-    const user = await this.usersRepository.findOneById(id, relations);
+  async findOneById(
+    userId: UserDto['id'],
+    options?: FindOneOptions<UserEntity>,
+  ) {
+    const user = await this.usersRepository.findOneById(userId, options);
+
+    return user;
+  }
+
+  async findOneByIdOrFail(
+    userId: UserDto['id'],
+    options?: FindOneOptions<UserEntity>,
+  ) {
+    const user = await this.usersRepository.findOneById(userId, options);
+
+    if (!user) {
+      throw new NotFoundException(MESSAGE_ERROR.NOT_FOUND_USER);
+    }
 
     return user;
   }

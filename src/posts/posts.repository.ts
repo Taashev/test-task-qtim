@@ -1,6 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, TypeORMError } from 'typeorm';
+import {
+  FindManyOptions,
+  FindOneOptions,
+  Repository,
+  TypeORMError,
+} from 'typeorm';
 import { validate } from 'class-validator';
 
 import { TypeOrmException } from 'src/exceptions/typeorm.exception';
@@ -10,8 +15,6 @@ import { PostEntity } from './entities/post.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { Options, Relations } from './types/repository';
-import { optionsDefault, defaultOptionRelations } from './utils/constants';
 
 @Injectable()
 export class PostsRepository {
@@ -54,15 +57,9 @@ export class PostsRepository {
     }
   }
 
-  async findAll(options?: Options) {
-    const { owner, skip, take } = { ...optionsDefault, ...options };
-
+  async findAll(options?: FindManyOptions<PostEntity>) {
     try {
-      const posts = this.postsRepository.find({
-        relations: { owner },
-        skip,
-        take,
-      });
+      const posts = this.postsRepository.find(options);
 
       return posts;
     } catch (error) {
@@ -76,12 +73,12 @@ export class PostsRepository {
 
   async findOneById(
     postId: PostDto['id'],
-    relations: Relations = defaultOptionRelations,
+    options?: FindOneOptions<PostEntity>,
   ) {
     try {
       const post = await this.postsRepository.findOne({
         where: { id: postId },
-        relations,
+        ...options,
       });
 
       return post;

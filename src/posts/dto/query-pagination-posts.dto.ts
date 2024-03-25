@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsNumber, IsOptional, Max, Min } from 'class-validator';
 
-export class QueryPaginationDto {
+export class QueryPaginationPostsDto {
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
