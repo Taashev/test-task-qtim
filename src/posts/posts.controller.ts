@@ -73,12 +73,13 @@ export class PostsController {
 
   @Post('list')
   @HttpCode(HttpStatus.OK)
-  async findList(@Query() paginationPostsDto: PaginationPostsDto) {
-    const { offset, limit } = paginationPostsDto;
+  async findList(
+    @Query() paginationPostsDto: PaginationPostsDto,
+    @Body() filterPostsDto: FilterPostsDto,
+  ) {
+    const optionsFilter = { ...filterPostsDto, ...paginationPostsDto };
 
-    const [posts, count] = await this.postsService.findOffset(offset, limit, {
-      relations: { owner: true },
-    });
+    const { posts, count } = await this.postsService.filter(optionsFilter);
 
     const postsResponseDto = plainToInstance(PostResponseDto, posts);
 

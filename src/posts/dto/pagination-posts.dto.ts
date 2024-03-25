@@ -7,12 +7,12 @@ export class PaginationPostsDto {
   @IsNumber()
   @Min(0)
   @Max(10)
-  offset: number = 0;
+  offset: number;
 
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
   @Max(10)
-  limit: number = 0;
+  limit: number;
 }

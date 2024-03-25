@@ -71,28 +71,6 @@ export class PostsRepository {
     }
   }
 
-  async findOffset(
-    skip: number,
-    take: number,
-    options?: FindManyOptions<PostEntity>,
-  ) {
-    try {
-      const res = await this.postsRepository.findAndCount({
-        skip,
-        take,
-        ...options,
-      });
-
-      return res;
-    } catch (error) {
-      if (error instanceof TypeORMError) {
-        throw new TypeOrmException(error);
-      }
-
-      throw error;
-    }
-  }
-
   async findOneById(
     postId: PostDto['id'],
     options?: FindOneOptions<PostEntity>,
@@ -139,5 +117,11 @@ export class PostsRepository {
 
       throw error;
     }
+  }
+
+  createQueryBuilder(alias: string) {
+    const queryBuilder = this.postsRepository.createQueryBuilder(alias);
+
+    return queryBuilder;
   }
 }

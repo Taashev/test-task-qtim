@@ -13,6 +13,8 @@ import { PostsRepository } from './posts.repository';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PaginationPostsDto } from './dto/pagination-posts.dto';
+import { FilterPostsDto } from './dto/filter-posts.dto';
 
 @Injectable()
 export class PostsService {
@@ -32,16 +34,6 @@ export class PostsService {
     const posts = await this.postsRepository.findAll(options);
 
     return posts;
-  }
-
-  async findOffset(
-    skip: number,
-    take: number,
-    options?: FindManyOptions<PostEntity>,
-  ) {
-    const res = await this.postsRepository.findOffset(skip, take, options);
-
-    return res;
   }
 
   async findOneById(
@@ -69,5 +61,41 @@ export class PostsService {
     if (!deleteResult.affected) {
       throw new BadRequestException(MESSAGE_ERROR.BAD_REQUEST_DELETE_POST);
     }
+  }
+
+  async filter(optionsFilter: PaginationPostsDto & FilterPostsDto) {
+    const queryBuilder = this.postsRepository.createQueryBuilder('post');
+
+    queryBuilder.leftJoinAndSelect('post.owner', 'user');
+
+    if (optionsFilter.author) {
+      queryBuilder.andWhere('user.username = :username', {
+        username: optionsFilter.author,
+      });
+    }
+
+    if (optionsFilter.title) {
+      queryBuilder.andWhere('post.title LIKE :title', {
+        title: `%${optionsFilter.title}%`,
+      });
+    }
+
+    if (optionsFilter.createdAt) {
+      queryBuilder.andWhere('post.createdAt :: date = :date', {
+        date: optionsFilter.createdAt,
+      });
+    }
+
+    if (optionsFilter.offset) {
+      queryBuilder.skip(optionsFilter.offset);
+    }
+
+    if (optionsFilter.limit) {
+      queryBuilder.take(optionsFilter.limit);
+    }
+
+    const [posts, count] = await queryBuilder.getManyAndCount();
+
+    return { posts, count };
   }
 }
