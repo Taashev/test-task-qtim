@@ -15,6 +15,8 @@ import { PostEntity } from './entities/post.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { FilterPostsDto } from './dto/filter-posts.dto';
+import { PaginationPostsDto } from './dto/pagination-posts.dto';
 
 @Injectable()
 export class PostsRepository {
@@ -119,9 +121,39 @@ export class PostsRepository {
     }
   }
 
-  createQueryBuilder(alias: string) {
-    const queryBuilder = this.postsRepository.createQueryBuilder(alias);
+  async filterPosts(optionsFilter: PaginationPostsDto & FilterPostsDto) {
+    const queryBuilder = this.postsRepository.createQueryBuilder('post');
 
-    return queryBuilder;
+    queryBuilder.leftJoinAndSelect('post.owner', 'user');
+
+    if (optionsFilter.author) {
+      queryBuilder.andWhere('user.username = :username', {
+        username: optionsFilter.author,
+      });
+    }
+
+    if (optionsFilter.title) {
+      queryBuilder.andWhere('post.title LIKE :title', {
+        title: `%${optionsFilter.title}%`,
+      });
+    }
+
+    if (optionsFilter.createdAt) {
+      queryBuilder.andWhere('post.createdAt :: date = :date', {
+        date: optionsFilter.createdAt,
+      });
+    }
+
+    if (optionsFilter.offset) {
+      queryBuilder.skip(optionsFilter.offset);
+    }
+
+    if (optionsFilter.limit) {
+      queryBuilder.take(optionsFilter.limit);
+    }
+
+    const [posts, count] = await queryBuilder.getManyAndCount();
+
+    return { posts, count };
   }
 }

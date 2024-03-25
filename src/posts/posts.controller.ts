@@ -79,7 +79,7 @@ export class PostsController {
   ) {
     const optionsFilter = { ...filterPostsDto, ...paginationPostsDto };
 
-    const { posts, count } = await this.postsService.filter(optionsFilter);
+    const { posts, count } = await this.postsService.filterPosts(optionsFilter);
 
     const postsResponseDto = plainToInstance(PostResponseDto, posts);
 

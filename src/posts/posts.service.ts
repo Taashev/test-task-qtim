@@ -63,39 +63,9 @@ export class PostsService {
     }
   }
 
-  async filter(optionsFilter: PaginationPostsDto & FilterPostsDto) {
-    const queryBuilder = this.postsRepository.createQueryBuilder('post');
+  async filterPosts(optionsFilter: PaginationPostsDto & FilterPostsDto) {
+    const posts = await this.postsRepository.filterPosts(optionsFilter);
 
-    queryBuilder.leftJoinAndSelect('post.owner', 'user');
-
-    if (optionsFilter.author) {
-      queryBuilder.andWhere('user.username = :username', {
-        username: optionsFilter.author,
-      });
-    }
-
-    if (optionsFilter.title) {
-      queryBuilder.andWhere('post.title LIKE :title', {
-        title: `%${optionsFilter.title}%`,
-      });
-    }
-
-    if (optionsFilter.createdAt) {
-      queryBuilder.andWhere('post.createdAt :: date = :date', {
-        date: optionsFilter.createdAt,
-      });
-    }
-
-    if (optionsFilter.offset) {
-      queryBuilder.skip(optionsFilter.offset);
-    }
-
-    if (optionsFilter.limit) {
-      queryBuilder.take(optionsFilter.limit);
-    }
-
-    const [posts, count] = await queryBuilder.getManyAndCount();
-
-    return { posts, count };
+    return posts;
   }
 }
