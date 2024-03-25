@@ -3,9 +3,12 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -22,6 +25,8 @@ import { PostDto } from './dto/post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostResponseDto } from './dto/post-respoonse.dto';
+import { PaginationPostsDto } from './dto/pagination-posts.dto';
+import { FilterPostsDto } from './dto/filter-posts.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -64,6 +69,25 @@ export class PostsController {
     const post = await this.postsService.create(createPostDto, user);
 
     return post;
+  }
+
+  @Post('list')
+  @HttpCode(HttpStatus.OK)
+  async findList(@Query() paginationPostsDto: PaginationPostsDto) {
+    const { offset, limit } = paginationPostsDto;
+
+    const [posts, count] = await this.postsService.findOffset(offset, limit, {
+      relations: { owner: true },
+    });
+
+    const postsResponseDto = plainToInstance(PostResponseDto, posts);
+
+    const postsResponse = postsResponseDto.map((post) => {
+      post.owner = plainToInstance(UserProfileResponse, post.owner);
+      return post;
+    });
+
+    return { posts: postsResponse, count };
   }
 
   @Patch(':id')

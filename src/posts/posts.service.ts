@@ -34,6 +34,16 @@ export class PostsService {
     return posts;
   }
 
+  async findOffset(
+    skip: number,
+    take: number,
+    options?: FindManyOptions<PostEntity>,
+  ) {
+    const res = await this.postsRepository.findOffset(skip, take, options);
+
+    return res;
+  }
+
   async findOneById(
     postId: PostDto['id'],
     options?: FindOneOptions<PostEntity>,

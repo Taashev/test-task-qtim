@@ -14,9 +14,7 @@ import { PostDto } from './post.dto';
 
 const { username } = userConfig;
 
-export class QueryFilterPostsDto extends PartialType(
-  PickType(PostDto, ['title']),
-) {
+export class FilterPostsDto extends PartialType(PickType(PostDto, ['title'])) {
   @IsOptional()
   @IsString()
   @MinLength(username.minLength)
