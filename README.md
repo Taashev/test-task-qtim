@@ -174,27 +174,85 @@ npm run start:dev
 
 ### Незащищенные маршруты
 
-**Users**:\
-`GET` **/users** - получить всех пользователей\
-`GET` **/users/:username** - получить пользователя по username\
+Users:\
+`GET` **/users** - получить всех пользователей
+
+`GET` **/users/:username** - получить пользователя по username
+
+> Param:\
+> {\
+> username: string\
+> }
+
 `GET` **/users/:username/posts** - получить все посты пользователя по username
 
-**Posts**:\
-`GET` **/posts** - получить все посты и их авторов\
+> Param:\
+> {\
+>  username: string\
+> }
+
+Posts:\
+`GET` **/posts** - получить все посты и их авторов
+
 `GET` **/posts/:id** - получить пост по id и автора
 
-**Auth**:\
-`POST` **/signup** - создать нового пользоателя\
+> Param:\
+> {\
+>  id string uuid\
+> }
+
+Auth:\
+`POST` **/signup** - создать нового пользоателя
+
+> Body:\
+> {\
+> username: string\
+> password: string\
+> }
+
 `POST` **/signin** - авторизоваться
+
+> Body:\
+> {\
+> username: string\
+> password: string\
+> }
 
 ### Защищенные маршруты
 
 User:\
-`GET` **/users/me** - получить текущего пользователя\
+`GET` **/users/me** - получить текущего пользователя
+
 `GET` **/users/me/posts** - получить все посты текущего пользователя
 
 Posts:\
-`POST` **/posts** - создать новый пост\
-`POSTS` **/posts/list** - получить выборку постов по автору, дате, заголовку поста с возможностью пагинации\
-`PATCH` **/posts/:id** - обновить пост по id\
+`POST` **/posts** - создать новый пост
+
+`POSTS` **/posts/list?offset=0&limit=0** - получить выборку постов по автору, дате, заголовку поста с возможностью пагинации
+
+> Query:\
+> {\
+>  offset: number\
+>  limit: number\
+> }
+
+> Body:\
+> {\
+>  author: string (username)\
+> createdAt: Date\
+> title: string\
+> }
+
+`PATCH` **/posts/:id** - обновить пост по id
+
+> Param:\
+> {\
+> id: string uuid\
+> }
+
 `DELETE` **/posts/:id** - удалить пост по id
+
+> Param:\
+> {\
+> id: string uuid\
+> }
