@@ -6,4 +6,5 @@ export class CreatePostDto extends OmitType(PostDto, [
   'owner',
   'createdAt',
   'updatedAt',
+  '_constructor-name_',
 ]) {}

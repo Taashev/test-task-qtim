@@ -92,16 +92,14 @@ npm run i
 `JWT_SECRET`='jwt_secret'  // * секрет для подписания jwt токенов
 `JWT_EXPIRES_IN`='7d'      // * время жизни токена
 
-`HASH_PASSWORD_SALT`=10    // длина соли при хешировании пароля
-
 `CACHE_TTL`=0              // время жизни кеша
 `CACHE_MAX`=50             // размера кеша
 
 `PG_HOST`='localhost'      // хост запуска Postgres
 `PG_PORT`=5432             // порт запуска Postgres
-`PG_NAME`='qtim_db'           // * имя БД Postgres
-`PG_USER`='qtim_user'     // * имя пользователя БД Postgres
-`PG_PASSWORD`='qtim_user' // * пароль пользователя БД Postgres
+`PG_NAME`='qtim_db'        // * имя БД Postgres
+`PG_USER`='qtim_user'      // * имя пользователя БД Postgres
+`PG_PASSWORD`='qtim_user'  // * пароль пользователя БД Postgres
 `PG_SYNCHRONIZE`=false     // автоматическая синхронизация БД с сущностями в коде
 `PG_CACHE`=false           // кеширование БД Postgres
 

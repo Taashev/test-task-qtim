@@ -6,4 +6,5 @@ export class CreateUserDto extends OmitType(UserDto, [
   'posts',
   'createdAt',
   'updatedAt',
+  '_constructor-name_',
 ]) {}

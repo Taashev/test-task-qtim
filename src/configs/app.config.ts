@@ -10,8 +10,6 @@ const validationSchema = Joi.object({
   JWT_SECRET: Joi.string().required(), // секретный ключ для подписания jwt
   JWT_EXPIRES_IN: Joi.string().required(), // время жизни jwt токена
 
-  HASH_PASSWORD_SALT: Joi.number().default(10), // соль для хеширования пароля
-
   CACHE_TTL: Joi.number().default(0), // по умолчанию время кеша неограниченно
   CACHE_TTL_POST: Joi.number().default(5000), // по умолчанию время жизни кеша 5 секунд
   CACHE_MAX_POST: Joi.number().default(500), // по умолчанию кеше может храниться 500 статей

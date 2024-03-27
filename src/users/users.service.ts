@@ -1,9 +1,8 @@
 import * as bcrypt from 'bcrypt';
 import { FindOneOptions } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
-import { MESSAGE_ERROR } from 'src/utils/constants';
+import { MESSAGE_ERROR, SALT } from 'src/utils/constants';
 
 import { UserEntity } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
@@ -12,17 +11,12 @@ import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    private readonly usersRepository: UsersRepository,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly usersRepository: UsersRepository) {}
 
   async create(createUserDto: CreateUserDto) {
     const createUser = await this.usersRepository.create(createUserDto);
 
-    const salt = this.configService.get('HASH_PASSWORD_SALT');
-
-    const hashPassword = await bcrypt.hash(createUser.password, salt);
+    const hashPassword = await bcrypt.hash(createUser.password, SALT);
 
     createUser.password = hashPassword;
 

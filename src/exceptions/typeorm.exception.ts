@@ -3,6 +3,7 @@ import {
   HttpExceptionOptions,
   HttpStatus,
 } from '@nestjs/common';
+
 import { MESSAGE_ERROR } from 'src/utils/constants';
 
 export class TypeOrmException extends HttpException {
