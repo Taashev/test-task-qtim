@@ -39,7 +39,6 @@ export class UserDto {
   @MaxLength(username.maxLength)
   username: string;
 
-  @Exclude()
   @IsNotEmpty()
   @IsString()
   @MinLength(password.minLength)

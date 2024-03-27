@@ -15,7 +15,7 @@ import { Request } from 'express';
 import { LocalGuard } from 'src/guards/local.guard';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { UserProfileResponse } from 'src/users/dto/user-profile-response.dto';
+import { UserProfileResponseDto } from 'src/users/dto/user-profile-response.dto';
 
 import { AuthService } from './auth.service';
 
@@ -31,7 +31,10 @@ export class AuthController {
   async signUp(@Body() createUserDto: CreateUserDto) {
     const user = await this.usersService.create(createUserDto);
 
-    const userProfileResponseDto = plainToInstance(UserProfileResponse, user);
+    const userProfileResponseDto = plainToInstance(
+      UserProfileResponseDto,
+      user,
+    );
 
     return userProfileResponseDto;
   }

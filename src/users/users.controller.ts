@@ -14,7 +14,7 @@ import { JwtGuard } from 'src/guards/jwt.guard';
 import { PostResponseDto } from 'src/posts/dto/post-respoonse.dto';
 
 import { UsersService } from './users.service';
-import { UserProfileResponse } from './dto/user-profile-response.dto';
+import { UserProfileResponseDto } from './dto/user-profile-response.dto';
 import { UserDto } from './dto/user.dto';
 
 @Controller('users')
@@ -23,11 +23,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @UseGuards(JwtGuard)
   async findAll() {
     const users = await this.usersService.findAll();
 
-    const usersProfileResponseDto = plainToInstance(UserProfileResponse, users);
+    const usersProfileResponseDto = plainToInstance(
+      UserProfileResponseDto,
+      users,
+    );
 
     return usersProfileResponseDto;
   }
@@ -37,7 +39,10 @@ export class UsersController {
   findMe(@Req() req: Request) {
     const user = req.user;
 
-    const userProfileResponseDto = plainToInstance(UserProfileResponse, user);
+    const userProfileResponseDto = plainToInstance(
+      UserProfileResponseDto,
+      user,
+    );
 
     return userProfileResponseDto;
   }
@@ -57,11 +62,13 @@ export class UsersController {
   }
 
   @Get(':username')
-  @UseGuards(JwtGuard)
   async findOneByUsername(@Param('username') username: UserDto['username']) {
     const user = await this.usersService.findOneByUsername(username);
 
-    const userProfileResponseDto = plainToInstance(UserProfileResponse, user);
+    const userProfileResponseDto = plainToInstance(
+      UserProfileResponseDto,
+      user,
+    );
 
     return userProfileResponseDto;
   }

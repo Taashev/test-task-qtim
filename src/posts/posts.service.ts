@@ -25,14 +25,19 @@ export class PostsService {
   ) {}
 
   async create(createPostDto: CreatePostDto, user: UserEntity) {
+    // создаем инстанс поста
     const createPost = await this.postsRepository.create(createPostDto);
 
+    // записываем владельца
     createPost.owner = user;
 
+    // сохраняем в БД
     const post = await this.postsRepository.save(createPost);
 
+    // очистим кеш со всеми записями чтобы добавить новые
     await this.redisPostsService.del('all');
 
+    // очистим кеш с выборками записей чтобы добавить новые
     await this.redisPostsService.reset('list:');
 
     return post;
@@ -60,9 +65,12 @@ export class PostsService {
   async update(postId: PostDto['id'], updatePostDto: UpdatePostDto) {
     const post = await this.postsRepository.update(postId, updatePostDto);
 
+    // очистим кеш со всеми постами чтобы добавить обновления
     await this.redisPostsService.del('all');
+    // очистм из кеша обновленный пост
     await this.redisPostsService.del(postId, 'id:');
 
+    // очистим кеш с выборками для добавления обновленных постов
     await this.redisPostsService.reset('list:');
 
     return post;
@@ -75,9 +83,12 @@ export class PostsService {
       throw new BadRequestException(MESSAGE_ERROR.BAD_REQUEST_DELETE_POST);
     }
 
+    // чистим кеш с удаленным постом
     await this.redisPostsService.del(postId, 'id:');
+    // очистм кеш со всеми постами
     await this.redisPostsService.del('all');
 
+    // очистим кеш с выборками для обновления после удаленных постов
     await this.redisPostsService.reset('list:');
   }
 

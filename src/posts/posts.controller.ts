@@ -18,7 +18,7 @@ import { Request } from 'express';
 import { plainToInstance } from 'class-transformer';
 
 import { JwtGuard } from 'src/guards/jwt.guard';
-import { UserProfileResponse } from 'src/users/dto/user-profile-response.dto';
+import { UserProfileResponseDto } from 'src/users/dto/user-profile-response.dto';
 import { RedisPostsService } from 'src/redis/redis-posts.service';
 
 import { PostsService } from './posts.service';
@@ -42,11 +42,21 @@ export class PostsController {
   @Get()
   @UseInterceptors(PostsCacheInterceptor)
   async findAll() {
+    // получаем все посты и владельцев
     const posts = await this.postsService.findAll({
       relations: { owner: true },
     });
-    const postsResponseDto = plainToInstance(PostResponseDto, posts);
 
+    // сериализуем объекты постов перед ответом
+    const postsResponseDto = plainToInstance(PostResponseDto, posts).map(
+      (post) => {
+        // сериализуем объекты owner перед ответом
+        post.owner = plainToInstance(UserProfileResponseDto, post.owner);
+        return post;
+      },
+    );
+
+    // записываем ответ в кеш под ключем 'all'
     await this.redisPostsService.set('all', postsResponseDto);
 
     return postsResponseDto;
@@ -55,13 +65,18 @@ export class PostsController {
   @Get(':id')
   @UseInterceptors(PostsCacheInterceptor)
   async findOneById(@Param('id') postId: PostDto['id']) {
+    // получаем пост по id и владельца
     const post = await this.postsService.findOneById(postId, {
       relations: { owner: true },
     });
+
+    // сериализуем пост перед ответом
     const postResponseDto = plainToInstance(PostResponseDto, post);
 
-    postResponseDto.owner = plainToInstance(UserProfileResponse, post.owner);
+    // сериализуем перед объект пользователя перед ответом
+    postResponseDto.owner = plainToInstance(UserProfileResponseDto, post.owner);
 
+    // запишем рузельтат в кеш с префиксом :id (шаблон записи в redis posts:id:postsId)
     await this.redisPostsService.set(postId, postResponseDto, {
       subPrefix: 'id:',
     });
@@ -86,17 +101,23 @@ export class PostsController {
     @Query() paginationPostsDto: PostsPaginationDto,
     @Body() filterPostsDto: PostsFilterDto,
   ) {
-    console.log('no cache');
-
     const optionsFilter = { ...paginationPostsDto, ...filterPostsDto };
 
     const { posts, count } = await this.postsService.filterPosts(optionsFilter);
 
     const postsResponseDto = {
-      posts: plainToInstance(PostResponseDto, posts),
+      // сериализуем объекты постов перед ответом
+      posts: plainToInstance(PostResponseDto, posts).map((post) => {
+        // сериализуем объекты owner перед ответом
+        post.owner = plainToInstance(UserProfileResponseDto, post.owner);
+        return post;
+      }),
+      // всего количество постов по запросу
       count,
     };
 
+    // запишем рузельтат в кеш с префиксом :list
+    // (шаблон записи в redis posts:list:optionsFilter)
     await this.redisPostsService.set(
       JSON.stringify(optionsFilter),
       postsResponseDto,
@@ -113,10 +134,13 @@ export class PostsController {
     @Param('id') postId: PostDto['id'],
     @Body() updatePostDto: UpdatePostDto,
   ) {
+    // обновляем пост
     await this.postsService.update(postId, updatePostDto);
 
+    // находим обновленный пост без владельца
     const updatedPost = await this.postsService.findOneById(postId);
 
+    // сериализуем пост перед ответом
     const postResponseDto = plainToInstance(PostResponseDto, updatedPost);
 
     return postResponseDto;
