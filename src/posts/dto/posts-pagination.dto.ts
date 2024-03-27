@@ -1,7 +1,8 @@
-import { Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { IsNotEmpty, IsNumber, Max, Min } from 'class-validator';
 
-export class PaginationPostsDto {
+export class PostsPaginationDto {
+  @Expose()
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
@@ -9,6 +10,7 @@ export class PaginationPostsDto {
   @Max(10)
   offset: number;
 
+  @Expose()
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()

@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -18,45 +19,52 @@ import { plainToInstance } from 'class-transformer';
 
 import { JwtGuard } from 'src/guards/jwt.guard';
 import { UserProfileResponse } from 'src/users/dto/user-profile-response.dto';
+import { RedisPostsService } from 'src/redis/redis-posts.service';
 
 import { PostsService } from './posts.service';
 import { IsOwnerPostInterceptor } from './interceptors/is-owner-post.interceptor';
+import { PostsCacheInterceptor } from './interceptors/posts-cache.interceptor';
 import { PostDto } from './dto/post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostResponseDto } from './dto/post-respoonse.dto';
-import { PaginationPostsDto } from './dto/pagination-posts.dto';
-import { FilterPostsDto } from './dto/filter-posts.dto';
+import { PostsPaginationDto } from './dto/posts-pagination.dto';
+import { PostsFilterDto } from './dto/posts-filter.dto';
 
 @Controller('posts')
+@UseInterceptors(ClassSerializerInterceptor)
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(
+    private readonly postsService: PostsService,
+    private readonly redisPostsService: RedisPostsService,
+  ) {}
 
   @Get()
+  @UseInterceptors(PostsCacheInterceptor)
   async findAll() {
     const posts = await this.postsService.findAll({
       relations: { owner: true },
     });
-
     const postsResponseDto = plainToInstance(PostResponseDto, posts);
 
-    const postsResponse = postsResponseDto.map((post) => {
-      post.owner = plainToInstance(UserProfileResponse, post.owner);
-      return post;
-    });
+    await this.redisPostsService.set('all', postsResponseDto);
 
-    return postsResponse;
+    return postsResponseDto;
   }
 
   @Get(':id')
+  @UseInterceptors(PostsCacheInterceptor)
   async findOneById(@Param('id') postId: PostDto['id']) {
     const post = await this.postsService.findOneById(postId, {
       relations: { owner: true },
     });
-
     const postResponseDto = plainToInstance(PostResponseDto, post);
 
     postResponseDto.owner = plainToInstance(UserProfileResponse, post.owner);
+
+    await this.redisPostsService.set(postId, postResponseDto, {
+      subPrefix: 'id:',
+    });
 
     return postResponseDto;
   }
@@ -73,22 +81,29 @@ export class PostsController {
 
   @Post('list')
   @HttpCode(HttpStatus.OK)
+  @UseInterceptors(PostsCacheInterceptor)
   async findList(
-    @Query() paginationPostsDto: PaginationPostsDto,
-    @Body() filterPostsDto: FilterPostsDto,
+    @Query() paginationPostsDto: PostsPaginationDto,
+    @Body() filterPostsDto: PostsFilterDto,
   ) {
-    const optionsFilter = { ...filterPostsDto, ...paginationPostsDto };
+    console.log('no cache');
+
+    const optionsFilter = { ...paginationPostsDto, ...filterPostsDto };
 
     const { posts, count } = await this.postsService.filterPosts(optionsFilter);
 
-    const postsResponseDto = plainToInstance(PostResponseDto, posts);
+    const postsResponseDto = {
+      posts: plainToInstance(PostResponseDto, posts),
+      count,
+    };
 
-    const postsResponse = postsResponseDto.map((post) => {
-      post.owner = plainToInstance(UserProfileResponse, post.owner);
-      return post;
-    });
+    await this.redisPostsService.set(
+      JSON.stringify(optionsFilter),
+      postsResponseDto,
+      { subPrefix: 'list:' },
+    );
 
-    return { posts: postsResponse, count };
+    return postsResponseDto;
   }
 
   @Patch(':id')
@@ -103,11 +118,6 @@ export class PostsController {
     const updatedPost = await this.postsService.findOneById(postId);
 
     const postResponseDto = plainToInstance(PostResponseDto, updatedPost);
-
-    postResponseDto.owner = plainToInstance(
-      UserProfileResponse,
-      postResponseDto.owner,
-    );
 
     return postResponseDto;
   }

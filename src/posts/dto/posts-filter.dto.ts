@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import {
   IsDate,
   IsOptional,
@@ -14,13 +14,15 @@ import { PostDto } from './post.dto';
 
 const { username } = userConfig;
 
-export class FilterPostsDto extends PartialType(PickType(PostDto, ['title'])) {
+export class PostsFilterDto extends PartialType(PickType(PostDto, ['title'])) {
+  @Expose()
   @IsOptional()
   @IsString()
   @MinLength(username.minLength)
   @MaxLength(username.maxLength)
   author: string;
 
+  @Expose()
   @IsOptional()
   @Type(() => Date)
   @IsDate()
