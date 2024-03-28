@@ -4,7 +4,7 @@ import { Cache } from 'cache-manager';
 
 export type Prefix = 'posts:';
 export type SubPrefix = 'id:' | 'list:' | '';
-export type TTL = 0;
+export type TTL = number;
 
 @Injectable()
 export class RedisPostsService {
@@ -39,7 +39,7 @@ export class RedisPostsService {
     return await this.cacheManager.del(this.prefix + subPrefix + key);
   }
 
-  async reset(subPrefix: SubPrefix = '') {
+  async reset(subPrefix: SubPrefix = this.subPrefix) {
     const client = this.cacheManager.store;
 
     const postKeys = await client.keys(this.prefix + subPrefix + '*');
