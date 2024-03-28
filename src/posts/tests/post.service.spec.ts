@@ -10,7 +10,6 @@ import { PostsRepositoryProviderMock } from './mock/post.repository.mock';
 import { owner1Mock } from './mock/owner.mock';
 import {
   date2Mock,
-  dateMock,
   post1Mock,
   post2Mock,
   post3Mock,

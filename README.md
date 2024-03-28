@@ -154,6 +154,8 @@ SELECT * FROM pg_extension WHERE extname = 'uuid-ossp';
 
 Для этой задачи в проекте есть уже созданные миграции в директории `src/database/migrations` и скрипты в `package.json` для выполнения миграций.
 
+Нужно просто набрать команду в терминала.
+
 ```sh
 npm run migrate:up
 ```
@@ -166,6 +168,14 @@ npm run migrate:up
 
 ```js
 npm run start:dev
+```
+
+### Тесты
+
+В проекте есть тесты для бизнес логики пользователей и постов.
+
+```sh
+npm run test
 ```
 
 # API
