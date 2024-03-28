@@ -38,6 +38,7 @@
 
 ### Стек проекта
 
+- NodeJS 20.11.0
 - NestJS 10.0.0
 - RxJS 7.8.1
 - TypeScript 5.1.3
