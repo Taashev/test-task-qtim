@@ -14,8 +14,7 @@ import { PostsRepository } from './posts.repository';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { PostsPaginationDto } from './dto/posts-pagination.dto';
-import { PostsFilterDto } from './dto/posts-filter.dto';
+import { OptionsFilterDto } from './dto/options-filter.dto';
 
 @Injectable()
 export class PostsService {
@@ -90,9 +89,11 @@ export class PostsService {
 
     // очистим кеш с выборками для обновления после удаленных постов
     await this.redisPostsService.reset('list:');
+
+    return deleteResult;
   }
 
-  async filterPosts(optionsFilter: PostsPaginationDto & PostsFilterDto) {
+  async filterPosts(optionsFilter: OptionsFilterDto) {
     const posts = await this.postsRepository.filterPosts(optionsFilter);
 
     return posts;

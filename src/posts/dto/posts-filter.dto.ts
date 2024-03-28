@@ -20,11 +20,11 @@ export class PostsFilterDto extends PartialType(PickType(PostDto, ['title'])) {
   @IsString()
   @MinLength(username.minLength)
   @MaxLength(username.maxLength)
-  author: string;
+  author?: string;
 
   @Expose()
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  createdAt: Date;
+  createdAt?: Date;
 }

@@ -1,55 +1,22 @@
 import * as bcrypt from 'bcrypt';
 import { Test } from '@nestjs/testing';
+import { NotFoundException } from '@nestjs/common';
 
 import { UsersService } from '../users.service';
-import { UsersRepository } from '../users.repository';
-import { CreateUserDto } from '../dto/create-user.dto';
 import { UserEntity } from '../entities/user.entity';
 
-import { hashPasswordMock, user1Mock, usersMock } from './mock/users-data.mock';
-import { NotFoundException } from '@nestjs/common';
+import { hashPasswordMock, user1Mock, usersMock } from './mock/users.mock';
+import { UsersRepositoryProviderMock } from './mock/users.repository.mock';
 
 describe('UsersService', () => {
   let usersService: UsersService;
-  let usersRepositoryMock: Partial<UsersRepository>;
 
   beforeEach(async () => {
-    usersRepositoryMock = {
-      create: jest
-        .fn()
-        .mockImplementation(
-          async (createUserDto: CreateUserDto) => createUserDto as UserEntity,
-        ),
-      save: jest.fn().mockImplementation(async (userEntity: UserEntity) => {
-        const user: UserEntity = {
-          ...user1Mock,
-          ...userEntity,
-        };
-        return user;
-      }),
-      findAll: jest.fn().mockImplementation(() => usersMock),
-      findOneByUsername: jest
-        .fn()
-        .mockImplementation((username: string) =>
-          usersMock.find((user) => user.username === username),
-        ),
-      findOneById: jest
-        .fn()
-        .mockImplementation((userId: string) =>
-          usersMock.find((user) => user.id === userId),
-        ),
-    };
-
     const UsersModuleRef = await Test.createTestingModule({
-      providers: [
-        UsersService,
-        {
-          provide: UsersRepository,
-          useValue: usersRepositoryMock,
-        },
-      ],
+      providers: [UsersService, UsersRepositoryProviderMock],
     }).compile();
 
+    // при вызове bcrypt.hash в сервисе будем отдавать замоканый результат вместо хеша
     jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashPasswordMock as never);
 
     usersService = await UsersModuleRef.get(UsersService);

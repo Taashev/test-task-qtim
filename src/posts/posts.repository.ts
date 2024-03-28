@@ -15,8 +15,7 @@ import { PostEntity } from './entities/post.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostDto } from './dto/post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { PostsFilterDto } from './dto/posts-filter.dto';
-import { PostsPaginationDto } from './dto/posts-pagination.dto';
+import { OptionsFilterDto } from './dto/options-filter.dto';
 
 @Injectable()
 export class PostsRepository {
@@ -121,7 +120,7 @@ export class PostsRepository {
     }
   }
 
-  async filterPosts(optionsFilter: PostsPaginationDto & PostsFilterDto) {
+  async filterPosts(optionsFilter: OptionsFilterDto) {
     const queryBuilder = this.postsRepository.createQueryBuilder('post');
 
     queryBuilder.leftJoinAndSelect('post.owner', 'user');
